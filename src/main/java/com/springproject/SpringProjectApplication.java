@@ -1,5 +1,6 @@
 package com.springproject;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,20 @@ import com.springproject.domain.Cidade;
 import com.springproject.domain.Cliente;
 import com.springproject.domain.Endereco;
 import com.springproject.domain.Estado;
+import com.springproject.domain.Pagamento;
+import com.springproject.domain.PagamentoComBoleto;
+import com.springproject.domain.PagamentoComCartao;
+import com.springproject.domain.Pedido;
 import com.springproject.domain.Produto;
+import com.springproject.enums.EstadoPagamento;
 import com.springproject.enums.TipoCliente;
 import com.springproject.repositories.CategoriaRepository;
 import com.springproject.repositories.CidadeRepository;
 import com.springproject.repositories.ClienteRepository;
 import com.springproject.repositories.EnderecoRepository;
 import com.springproject.repositories.EstadoRepository;
+import com.springproject.repositories.PagamentoRepository;
+import com.springproject.repositories.PedidoRepository;
 import com.springproject.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -36,6 +44,10 @@ public class SpringProjectApplication implements CommandLineRunner {
 	private ClienteRepository clienteRepository;
 	@Autowired
 	private EnderecoRepository enderecoRepository;
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringProjectApplication.class, args);
@@ -69,6 +81,17 @@ public class SpringProjectApplication implements CommandLineRunner {
 		Endereco endereco1 = new Endereco(null, "Rua Flores", "300", "Apto.203", "Jardim", "00000-000", cliente1, cidade1);
 		Endereco endereco2 = new Endereco(null, "Avenida Matos", "105", "Sala 800", "Centro", "11111-111", cliente1, cidade2);
 		
+		//Cria Pedidos para Teste.
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		Pedido pedido1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), endereco1, cliente1);
+		Pedido pedido2 = new Pedido(null, sdf.parse("10/10/2017 19:35"), endereco2, cliente1);
+		
+		//Cria Pagamento para Teste.
+		Pagamento pagamento1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, pedido1, 6);
+		pedido1.setPagamento(pagamento1);
+		Pagamento pagamento2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, pedido2, sdf.parse("20/10/2017 00:00"), null);
+		pedido2.setPagamento(pagamento2);
+		
 		categoria1.getProdutos().addAll(Arrays.asList(produto1,produto2,produto3));
 		categoria2.getProdutos().add(produto2);
 		
@@ -80,6 +103,7 @@ public class SpringProjectApplication implements CommandLineRunner {
 		estado2.getCidades().addAll(Arrays.asList(cidade2, cidade3));
 		
 		cliente1.getEnderecos().addAll(Arrays.asList(endereco1, endereco2));
+		cliente1.getPedidos().addAll(Arrays.asList(pedido1, pedido2));
 		
 		categoriaRepository.saveAll(Arrays.asList(categoria1,categoria2));
 		produtoRepository.saveAll(Arrays.asList(produto1,produto2,produto3));
@@ -87,5 +111,8 @@ public class SpringProjectApplication implements CommandLineRunner {
 		cidadeRepository.saveAll(Arrays.asList(cidade1, cidade2, cidade3));
 		clienteRepository.saveAll(Arrays.asList(cliente1));
 		enderecoRepository.saveAll(Arrays.asList(endereco1, endereco2));
+		pagamentoRepository.saveAll(Arrays.asList(pagamento1, pagamento2));
+		pedidoRepository.saveAll(Arrays.asList(pedido1, pedido2));
+		
 	}
 }
